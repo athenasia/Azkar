@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azkar - Islamic Supplications</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #000000 0%, #191970 50%, #00008B 100%);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            min-height: 100vh;
+        }
+        .page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .page.active {
+            display: flex;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 139, 0.5);
+            width: 80%;
+            max-width: 800px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            background: #333;
+            color: white;
+            text-align: center;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        #enter-btn {
+            background: #00008B;
+            color: white;
+        }
+        #enter-btn:hover {
+            background: #0000CD;
+        }
+        #options-btn {
+            background: #191970;
+            color: white;
+        }
+        #options-btn:hover {
+            background: #0000FF;
+        }
+        #options-box {
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        #options-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        #options-box li {
+            margin: 10px 0;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        #options-box li:hover {
+            color: #00BFFF;
+        }
+        .supplication {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            text-align: left;
+        }
+        .supplication h3 {
+            margin: 0 0 10px 0;
+            color: #00BFFF;
+        }
+        .arabic {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 10px 0;
+            direction: rtl;
+        }
+        .english {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .explanation {
+            font-size: 1em;
+            color: #CCCCCC;
+            margin: 10px 0;
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #00008B;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        .back-btn:hover {
+            background: #0000CD;
+        }
+    </style>
+</head>
+<body>
+    <!-- Homepage -->
+    <div id="homepage" class="page active">
+        <h1>Welcome to Azkar 🌙</h1>
+        <div class="container">
+            <input type="text" id="dhikr-input" placeholder="Type the type of dhikr you want here...">
+            <div class="buttons">
+                <button id="enter-btn">Enter</button>
+                <button id="options-btn">Options</button>
+            </div>
+            <div id="options-box">
+                <h3>Types of Supplications:</h3>
+                <ul>
+                    <li data-type="healing">Supplication for healing</li>
+                    <li data-type="istighfar">Istighfar (seeking forgiveness)</li>
+                    <li data-type="tawbah">Tawbah (repentance)</li>
+                    <li data-type="family">Supplication for family and relatives</li>
+                    <li data-type="guidance">Supplication for guidance</li>
+                    <li data-type="oneself">Supplication for oneself</li>
+                    <li data-type="provision">Supplication for provision and blessings</li>
+                    <li data-type="patience">Supplication for patience and strength</li>
+                    <li data-type="protection">Supplication for protection from evil</li>
+                    <li data-type="success">Supplication for success and prosperity</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplication Page -->
+    <div id="supplication-page" class="page">
+        <button class="back-btn" id="back-btn">Back</button>
+        <h1 id="supplication-title"></h1>
+        <div class="container">
+            <div id="supplications-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const homepage = document.getElementById('homepage');
+        const supplicationPage = document.getElementById('supplication-page');
+        const optionsBtn = document.getElementById('options-btn');
+        const optionsBox = document.getElementById('options-box');
+        const backBtn = document.getElementById('back-btn');
+        const supplicationTitle = document.getElementById('supplication-title');
+        const supplicationsContent = document.getElementById('supplications-content');
+
+        // Supplications data
+        const supplications = {
+            healing: [
+                {
+                    english: "O Allah, grant healing to [name] from every illness and cure him/her from every disease.",
+                    arabic: "اللهم اشفِ [الاسم] من كل داء وأبرئه من كل علة.",
+                    explanation: "This supplication asks Allah for complete healing and recovery from any ailment."
+                },
+                {
+                    english: "O Allah, I seek refuge in You from the evil of my hearing, my sight, my tongue, my heart, and the evil of my private parts.",
+                    arabic: "اللهم إني أعوذ بك من شر مسمعي ومن شر بصري ومن شر لساني ومن شر قلبي ومن شر فرجي.",
+                    explanation: "This is a general supplication for protection, often recited for overall well-being, including health."
+                }
+            ],
+            istighfar: [
+                {
+                    english: "I seek forgiveness from Allah, my Lord, from every sin I have committed knowingly or unknowingly, secretly or openly.",
+                    arabic: "أستغفر الله ربي من كل ذنب أذنبته عمداً أو خطأً سراً أو علانية.",
+                    explanation: "This is a comprehensive istighfar seeking forgiveness for all sins."
+                },
+                {
+                    english: "O Allah, You are my Lord, there is no god but You. You created me and I am Your servant. I am faithful to my covenant and my promise as much as I can.",
+                    arabic: "اللهم أنت ربي لا إله إلا أنت خلقتني وأنا عبدك وأنا على عهدك ووعدك ما استطعت.",
+                    explanation: "This is a powerful istighfar and affirmation of faith, often recited in the morning and evening."
+                }
+            ],
+            tawbah: [
+                {
+                    english: "O Allah, I have wronged myself greatly, and no one forgives sins except You, so forgive me with Your forgiveness and have mercy on me. Indeed, You are the Forgiving, the Merciful.",
+                    arabic: "اللهم إني ظلمت نفسي ظلماً كثيراً ولا يغفر الذنوب إلا أنت فاغفر لي مغفرة من عندك وارحمني إنك أنت الغفور الرحيم.",
+                    explanation: "This supplication is for sincere repentance, acknowledging one's sins and seeking Allah's mercy."
+                },
+                {
+                    english: "O Allah, guide me to the best of manners, for none can guide to the best of manners except You.",
+                    arabic: "اللهم اهدني لأحسن الأخلاق لا يهدي لأحسنها إلا أنت.",
+                    explanation: "This seeks guidance for better character as part of repentance and self-improvement."
+                }
+            ],
+            family: [
+                {
+                    english: "O Allah, bless my family and me in what You have provided us, and guard us from the punishment of the Fire.",
+                    arabic: "اللهم بارك لي في أهلي ومالي وأعوذ بك من عذاب النار.",
+                    explanation: "This supplication asks for blessings on family and protection from Hellfire."
+                },
+                {
+                    english: "O Allah, have mercy on my parents as they raised me when I was young.",
+                    arabic: "اللهم ارحم والدي كما ربياني صغيراً.",
+                    explanation: "This is a dua for mercy on parents, emphasizing gratitude for their upbringing."
+                }
+            ],
+            guidance: [
+                {
+                    english: "O Allah, guide us and make us among the rightly guided.",
+                    arabic: "اللهم اهدنا واهد بنا.",
+                    explanation: "This seeks Allah's guidance for oneself and others to follow the straight path."
+                },
+                {
+                    english: "O Allah, open my heart and ease my task and untie the knot from my tongue so that they may understand my speech.",
+                    arabic: "اللهم افتح قلبي ويسر أمري واحلل عقدة من لساني يفقهوا قولي.",
+                    explanation: "This supplication asks for clarity of heart, ease in matters, and eloquence in speech, aiding in guidance."
+                }
+            ],
+            oneself: [
+                {
+                    english: "O Allah, make my religion easy for me by virtue of which my affairs are protected, set right for me my worldly affairs, and grant me success in the Hereafter.",
+                    arabic: "اللهم يسر لي ديني الذي به حفظت أمري وأصلح لي دنياي التي فيها معاشي وأحسن لي آخرتي التي إليها معادي.",
+                    explanation: "This dua asks for ease in practicing religion and success in both worldly and afterlife matters."
+                },
+                {
+                    english: "O Allah, I ask You for steadfastness in the matter and determination upon guidance, and I ask You to make me grateful for Your favor and to worship You well.",
+                    arabic: "اللهم إني أسألك العزم على الأمر والثبات على الهدى وأسألك شكر نعمتك وحسن عبادتك.",
+                    explanation: "This seeks firmness in faith and gratitude for Allah's blessings."
+                }
+            ],
+            provision: [
+                {
+                    english: "O Allah, I ask You for knowledge that is beneficial and sustenance that is good, and deeds that are accepted.",
+                    arabic: "اللهم إني أسألك علماً نافعاً ورزقاً طيباً وعمالاً متقبلاً.",
+                    explanation: "This supplication asks for beneficial knowledge, good provision, and accepted deeds."
+                },
+                {
+                    english: "O Allah, suffice me with what You have provided me instead of what I ask from others, and make me independent of everyone except You.",
+                    arabic: "اللهم اكفني بحلالك عن حرامك وأغنني بفضلك عمن سواك.",
+                    explanation: "This seeks sufficiency in halal provision and independence from others."
+                }
+            ],
+            patience: [
+                {
+                    english: "O Allah, give us in this world good, and in the Hereafter good, and save us from the punishment of the Fire.",
+                    arabic: "اللهم آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار.",
+                    explanation: "This dua asks for goodness in both worlds and protection from Hellfire, fostering patience."
+                },
+                {
+                    english: "O Allah, there is no ease except what You make easy, and You make the difficult easy if You will.",
+                    arabic: "اللهم لا سهل إلا ما جعلته سهلاً وأنت تجعل الحزن إذا شئت سهلاً.",
+                    explanation: "This affirms that ease comes from Allah, helping in times of difficulty and building patience."
+                }
+            ],
+            protection: [
+                {
+                    english: "I seek refuge in Allah from Satan the accursed.",
+                    arabic: "أعوذ بالله من الشيطان الرجيم.",
+                    explanation: "This is a basic protection from evil, recited before reading Quran or in times of temptation."
+                },
+                {
+                    english: "O Allah, I seek refuge in You from the evil of what I have done and from the evil of what I have not done.",
+                    arabic: "اللهم إني أعوذ بك من شر ما عملت ومن شر ما لم أعمل.",
+                    explanation: "This seeks protection from the consequences of actions and inactions."
+                }
+            ],
+            success: [
+                {
+                    english: "O Allah, Lord of the heavens and the earth, Knower of the unseen and the witnessed, You decree between Your servants concerning that over which they differ. Guide me to the truth regarding that over which people have differed.",
+                    arabic: "اللهم رب السماوات والأرض عالم الغيب والشهادة أنت تحكم بين عبادك فيما كانوا فيه يختلفون اهدني لما اختلف فيه من الحق بإذنك.",
+                    explanation: "This supplication asks for guidance in matters of dispute, leading to success in truth."
+                },
+                {
+                    english: "O Allah, make my effort successful and do not make my feet slip after You have set me straight, and have mercy on me.",
+                    arabic: "اللهم وفقني ولا تزل قدمي بعد إقامتها وارحمني.",
+                    explanation: "This seeks success in efforts and steadfastness after guidance."
+                }
+            ]
+        };
+
+        // Show options
+        optionsBtn.addEventListener('click', () => {
+            optionsBox.style.display = optionsBox.style.display === 'none' || optionsBox.style.display === '' ? 'block' : 'none';
+        });
+
+        // Handle option click
+        optionsBox.addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                const type = e.target.getAttribute('data-type');
+                showSupplications(type);
+            }
+        });
+
+        // Back button
+        backBtn.addEventListener('click', () => {
+            supplicationPage.classList.remove('active');
+            homepage.classList.add('active');
+        });
+
+        function showSupplications(type) {
+            const title = document.querySelector(`[data-type="${type}"]`).textContent;
+            supplicationTitle.textContent = title;
+            supplicationsContent.innerHTML = '';
+            supplications[type].forEach(sup => {
+                const div = document.createElement('div');
+                div.className = 'supplication';
+                div.innerHTML = `
+                    <h3>Supplication:</h3>
+                    <div class="english">${sup.english}</div>
+                    <div class="arabic">${sup.arabic}</div>
+                    <div class="explanation"><strong>Explanation:</strong> ${sup.explanation}</div>
+                `;
+                supplicationsContent.appendChild(div);
+            });
+            homepage.classList.remove('active');
+            supplicationPage.classList.add('active');
+        }
+    </script>
+</body>
+</html>
